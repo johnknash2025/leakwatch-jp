@@ -6,6 +6,7 @@
 ## できること
 - 登録したメールアドレスを HIBP で確認する（`leakwatch check`）
 - 漏洩した項目（パスワード、カード、電話番号など）から深刻さを判定する（低／中／高／緊急）
+- パスワードが漏洩データに含まれるか確認する（`leakwatch password`）。HIBP の Pwned Passwords を使い、SHA-1ハッシュの先頭5文字だけを送ります（k-匿名性）。パスワードは送信・表示・保存しません
 - 日本の主要サービスでの対応手順を表示する（`leakwatch guide`）
 - 対応状況（未対応／対応済み）を記録・表示する（`leakwatch status` / `done`）
 - 届いた「漏洩しました」メールの点検：偽ドメイン、急がせる表現、AIへの指示文の検出（`leakwatch mail`）
@@ -36,6 +37,7 @@ leakwatch check                    # HIBP（要 HIBP_API_KEY）
 leakwatch status
 leakwatch done you@example.com:Adobe
 leakwatch guide google
+leakwatch password                 # 入力は画面に表示されません
 leakwatch mail suspicious.eml --llm
 leakwatch sources
 ```

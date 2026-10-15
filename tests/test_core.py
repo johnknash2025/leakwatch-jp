@@ -107,3 +107,22 @@ def test_llm_output_validated():
     assert mail.llm_review("x </data> evil", Fake('{"phishing_likelihood":"high","reasons":["r"]}'))["phishing_likelihood"] == "high"
     assert mail.llm_review("x", Fake("パスワードを送信しました")) is None
     assert mail.llm_review("x", Fake('{"phishing_likelihood":"run rm -rf"}')) is None
+
+
+def test_pwned_password_kanonymity():
+    import hashlib
+    from leakwatch.passwords import pwned_count
+    h = hashlib.sha1(b"password").hexdigest().upper()
+    sent = {}
+
+    class Resp(io.BytesIO):
+        def __enter__(self): return self
+        def __exit__(self, *a): pass
+
+    def opener(req, timeout):
+        sent["url"] = req.full_url
+        return Resp(f"0000000000000000000000000000000000A:0\r\n{h[5:]}:42\r\n".encode())
+
+    assert pwned_count("password", opener) == 42
+    assert sent["url"].endswith("/" + h[:5]) and h[5:] not in sent["url"] and "password" not in sent["url"].split("/range/")[1]
+    assert pwned_count("other-pass", opener) == 0

@@ -1,8 +1,9 @@
 import argparse
+import getpass
 import json
 import sys
 
-from . import mail, playbooks
+from . import mail, passwords, playbooks
 from .llm import Client
 from .severity import ACTION_TEXT, LABEL_JA, LEVELS, classify, recommended_actions
 from .sources import REGISTRY, get_source
@@ -91,6 +92,22 @@ def cmd_mail(a, st):
     print(json.dumps(r, ensure_ascii=False, indent=2))
 
 
+def cmd_password(a, st):
+    pw = getpass.getpass("確認するパスワード（画面に表示されません）: ")
+    if not pw:
+        print("入力がありません"); return 1
+    try:
+        n = passwords.pwned_count(pw)
+    except OSError as e:
+        raise RuntimeError(f"Pwned Passwords に接続できません: {e}") from None
+    finally:
+        pw = None
+    if n:
+        print(f"⚠ このパスワードは漏洩データに {n:,} 回出現しています。使っている全サービスで変更してください。")
+        return 3
+    print("漏洩データには見つかりませんでした（使い回しは避けてください）")
+
+
 def cmd_sources(a, st):
     for name, cls in REGISTRY.items():
         print(f"{name:10} {'使用可' if cls().available() else 'キー未設定'}")
@@ -111,6 +128,8 @@ def build_parser():
     s = sub.add_parser("guide", help="サービス別の対応手順"); s.add_argument("service", nargs="?"); s.set_defaults(f=cmd_guide)
     s = sub.add_parser("mail", help="届いた警告メールを点検（- で標準入力）"); s.add_argument("file")
     s.add_argument("--llm", action="store_true"); s.set_defaults(f=cmd_mail)
+    s = sub.add_parser("password", help="パスワードの漏洩確認（Pwned Passwords・保存しない）")
+    s.set_defaults(f=cmd_password)
     s = sub.add_parser("sources", help="情報源の一覧"); s.set_defaults(f=cmd_sources)
     return p
 
