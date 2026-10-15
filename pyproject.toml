@@ -1,0 +1,20 @@
+[project]
+name = "leakwatch-jp"
+version = "0.1.0"
+description = "自分の情報漏洩をHIBPなどの公開APIで確認し、対応を提案・記録するローカルCLI"
+license = "AGPL-3.0-only"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+leakwatch = "leakwatch.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["leakwatch*"]
+
+[tool.setuptools.package-data]
+leakwatch = ["data/*.json"]

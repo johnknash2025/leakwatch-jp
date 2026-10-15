@@ -1,0 +1,29 @@
+{
+  "_note": "リンク・電話番号は推測で書かない。verified=true は出典を確認した日付付きのものだけ。未確認は必ず本人が公式サイトで確かめること。",
+  "services": [
+    {"id": "google", "name": "Google", "match_domains": ["google.com", "gmail.com"],
+     "steps": ["パスワードを変更する", "2段階認証を有効にする", "セキュリティ診断で不審なログインを確認する"],
+     "links": [{"label": "Googleアカウントのセキュリティ", "url": "https://myaccount.google.com/security", "verified": false}],
+     "phones": []},
+    {"id": "apple", "name": "Apple", "match_domains": ["apple.com", "icloud.com"],
+     "steps": ["Apple Accountのパスワードを変更する", "2ファクタ認証を確認する", "サインイン中のデバイスを確認する"],
+     "links": [{"label": "Apple Account管理", "url": "https://account.apple.com/", "verified": false}],
+     "phones": []},
+    {"id": "amazon", "name": "Amazon.co.jp", "match_domains": ["amazon.co.jp", "amazon.com"],
+     "steps": ["パスワードを変更する", "2段階認証を有効にする", "注文履歴に不審な注文がないか確認する"],
+     "links": [{"label": "Amazon.co.jp トップ（アカウントサービスから操作）", "url": "https://www.amazon.co.jp/", "verified": false}],
+     "phones": []},
+    {"id": "rakuten", "name": "楽天", "match_domains": ["rakuten.co.jp", "rakuten.com"],
+     "steps": ["楽天会員パスワードを変更する", "2段階認証を設定する", "楽天カード・楽天銀行の利用履歴を確認する"],
+     "links": [{"label": "楽天会員情報管理", "url": "https://member.id.rakuten.co.jp/", "verified": false}],
+     "phones": []},
+    {"id": "card_generic", "name": "クレジットカード会社（共通）", "match_domains": [],
+     "steps": ["カード裏面の電話番号に連絡する（メールやSMSに書かれた番号は使わない）", "停止・再発行を依頼する", "明細の不正利用を確認する"],
+     "links": [], "phones": [],
+     "unverified_note": "各カード会社（三井住友・JCB・楽天カード・イオン・セゾン等）の紛失盗難窓口は未確認のため未収録。必ずカード裏面か公式サイトで確認すること。"},
+    {"id": "securities_generic", "name": "証券会社（共通）", "match_domains": ["sbisec.co.jp", "rakuten-sec.co.jp", "monex.co.jp", "matsui.co.jp"],
+     "steps": ["ログインパスワード・取引パスワードを変更する", "多要素認証を有効にする", "取引履歴・出金先口座の変更がないか確認する", "不審な点があれば公式サイト記載の窓口へ連絡する"],
+     "links": [], "phones": [],
+     "unverified_note": "各証券会社の窓口URL・電話番号は未確認のため未収録。"}
+  ]
+}
