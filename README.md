@@ -1,58 +1,60 @@
 # leakwatch-jp
 
-自分のメールアドレスが過去の情報漏洩に含まれていないかを **公開API（標準は Have I Been Pwned）** で確認し、
-深刻さの判定、対応手順の提案、進み具合の記録を **自分のPCの中だけで** 行うCLIです。
+English | [日本語](README.ja.md)
 
-## できること
-- 登録したメールアドレスを HIBP で確認する（`leakwatch check`）
-- 漏洩した項目（パスワード、カード、電話番号など）から深刻さを判定する（低／中／高／緊急）
-- パスワードが漏洩データに含まれるか確認する（`leakwatch password`）。HIBP の Pwned Passwords を使い、SHA-1ハッシュの先頭5文字だけを送ります（k-匿名性）。パスワードは送信・表示・保存しません
-- 日本の主要サービスでの対応手順を表示する（`leakwatch guide`）
-- 対応状況（未対応／対応済み）を記録・表示する（`leakwatch status` / `done`）
-- 届いた「漏洩しました」メールの点検：偽ドメイン、急がせる表現、AIへの指示文の検出（`leakwatch mail`）
-- 任意で、ローカルのOpenAI互換LLMによる補助判定（`--llm`）
+A CLI that checks whether your email address appears in past breaches via a **public API (Have I Been Pwned by default)**,
+rates the severity, suggests response steps, and tracks your progress — **entirely on your own PC**.
 
-## できないこと・しないこと
-- **ダークウェブやTorを自前で巡回・スクレイピングすることはしません。漏洩データのダウンロードもしません。**
-- パスワード変更、カード停止、各サービスへのログインは実行しません。**最後の操作はご本人が行います。**
-- 銀行やカード会社の認証情報は扱いません。
+## What it does
+- Checks your registered email addresses against HIBP (`leakwatch check`)
+- Rates severity (low / medium / high / critical) from the breached fields (passwords, cards, phone numbers, etc.)
+- Checks whether a password appears in breach data (`leakwatch password`). Uses HIBP Pwned Passwords, sending only the first 5 characters of the SHA-1 hash (k-anonymity). Passwords are never sent, displayed, or stored
+- Shows response steps for major Japanese services (`leakwatch guide`)
+- Records and displays your response status (unaddressed / done) (`leakwatch status` / `done`)
+- Inspects "you've been breached" emails you received: fake domains, urgency-inducing wording, AI instruction text (`leakwatch mail`)
+- Optionally, supplementary assessment by a local OpenAI-compatible LLM (`--llm`)
 
-### 自前でダークウェブを巡回しない理由
-- 漏洩データを手元に持つと、それ自体が新たな漏洩リスクになり、法的にも問題になり得ます。
-- 犯罪フォーラムに接続するとマルウェアや追跡の危険があります。
-- HIBP のように、データを責任ある形で扱う専門サービスに任せたほうが正確で安全です。
+## What it does not do
+- **It does not crawl or scrape the dark web or Tor itself, and it does not download breach data.**
+- It does not change passwords, cancel cards, or log in to services. **You perform the final steps yourself.**
+- It does not handle bank or card-company credentials.
 
-## データの扱い
-- 記録は `~/.leakwatch/state.json`（権限600）にだけ保存します。外部へ送るのは、確認に使うAPIへのメールアドレスだけです。
-- APIキーは環境変数か macOS キーチェーンから読みます。表示・記録はしません。
-- 暗号化保存は未対応です（今後の課題）。ディスク暗号化（FileVault など）を有効にしてください。
-- LLMは `LEAKWATCH_LLM_URL` を設定したときだけ使います。ローカルのサーバーを推奨します。
+### Why we do not crawl the dark web ourselves
+- Keeping breach data on hand creates a new leak risk in itself and can raise legal problems.
+- Connecting to criminal forums carries the risk of malware and tracking.
+- It is more accurate and safer to leave it to specialist services that handle the data responsibly, such as HIBP.
 
-## 使い方
+## Data handling
+- Records are stored only in `~/.leakwatch/state.json` (permission 600). The only thing sent externally is your email address to the API used for the check.
+- API keys are read from an environment variable or the macOS Keychain. They are never displayed or recorded.
+- Encrypted storage is not supported (future work). Enable disk encryption (e.g. FileVault).
+- The LLM is used only when `LEAKWATCH_LLM_URL` is set. A local server is recommended.
+
+## Usage
 ```
 pip install -e .
 leakwatch add you@example.com
-leakwatch check --source mock      # キーなしで動作確認（pwned@example.com が漏洩ありのモック）
-leakwatch check                    # HIBP（要 HIBP_API_KEY）
+leakwatch check --source mock      # smoke test without a key (pwned@example.com is a mocked breached address)
+leakwatch check                    # HIBP (requires HIBP_API_KEY)
 leakwatch status
 leakwatch done you@example.com:Adobe
 leakwatch guide google
-leakwatch password                 # 入力は画面に表示されません
+leakwatch password                 # input is not displayed on screen
 leakwatch mail suspicious.eml --llm
 leakwatch sources
 ```
 
-HIBP の APIキーはご自身で https://haveibeenpwned.com/API/Key から取得し、次のどちらかで設定してください。
-- 環境変数 `HIBP_API_KEY`
-- キーチェーン: `security add-generic-password -s leakwatch-jp -a HIBP_API_KEY -w`（実行すると入力を求められます）
+Get your own HIBP API key from https://haveibeenpwned.com/API/Key and set it either way:
+- Environment variable `HIBP_API_KEY`
+- Keychain: `security add-generic-password -s leakwatch-jp -a HIBP_API_KEY -w` (you will be prompted for the value)
 
-ローカルLLM（例）: `LEAKWATCH_LLM_URL=http://127.0.0.1:18080/v1 LEAKWATCH_LLM_MODEL=glm-5.3-flash`
+Local LLM (example): `LEAKWATCH_LLM_URL=http://127.0.0.1:18080/v1 LEAKWATCH_LLM_MODEL=glm-5.3-flash`
 
-## 情報源の追加
-`leakwatch/sources/` に `BreachSource` を実装して `REGISTRY` に登録します。SpyCloud や Flare は口だけ用意しています（未実装）。
+## Adding sources
+Implement `BreachSource` in `leakwatch/sources/` and register it in `REGISTRY`. SpyCloud and Flare are stubs only (not implemented).
 
-## 対応手順データ
-`leakwatch/data/playbooks.json`。リンクと電話番号は推測で書きません。確認できていないものは `verified: false` として表示時に「未確認」と出します。
+## Response-step data
+`leakwatch/data/playbooks.json`. Links and phone numbers are never written on guesswork. Anything unverified is marked `verified: false` and shown as "unconfirmed".
 
-## ライセンス
-AGPL-3.0。AGPL の条件で使えない企業などには、別途商用ライセンスを相談で提供する予定です。
+## License
+AGPL-3.0. For companies that cannot use AGPL terms, a separate commercial license is planned by negotiation.
